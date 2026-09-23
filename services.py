@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, Any, List, cast
 
 import database as _database
 import models as _models
@@ -40,3 +40,16 @@ async def get_contact(id: int, db:"Session"):
 async def delete_contact(contact: _models.Contact, db: "Session"):
     db.delete(contact)
     db.commit()
+
+
+async def update_contact(
+    contact_data: _schemas.CreateContact, contact: _models.Contact, db: "Session"
+) -> _schemas.Contact:
+    contact_obj = cast(Any, contact)
+    for field_name in ("first_name", "last_name", "email", "phone_number"):
+        setattr(contact_obj, field_name, getattr(contact_data, field_name))
+
+    db.commit()
+    db.refresh(contact)
+
+    return _schemas.Contact.from_orm(contact)

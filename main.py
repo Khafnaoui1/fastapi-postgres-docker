@@ -37,3 +37,19 @@ async def delete_contact(contact_id: int, db:_orm.Session = _fastapi.Depends(_se
     await _services.delete_contact(contact, db=db)
 
     return "contact succedully deleted "
+
+
+@app.put("/api/contacts/{contact_id}/", response_model=_schemas.Contact)
+async def update_contact(
+     contact_id : int,
+     contact_data : _schemas.CreateContact,
+     db: _orm.Session = _fastapi.Depends(_services.get_db),
+):   
+    contact = await _services.get_contact(id=contact_id, db=db)
+    if contact is None:
+           raise _fastapi.HTTPException(status_code= 404, detail="contact does not exist")  
+
+    return await _services.update_contact(
+         contact_data=contact_data, contact=contact, db=db)
+
+    
